@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "deepseek-nv",
+  "name": {
+    "zh": "DeepSeek 娘·深海",
+    "en": "DeepSeek-tan Abyss"
+  },
+  "order": 170,
+  "appearance": "dark",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#5bbdf7",
+    "secondary": "#7fa3cf",
+    "surface": "#0c1c3e",
+    "text": "#dfeaf8"
+  },
+  "hero": "deepseek-nv-bg.webp",
+  "heroFocus": "62% 40%",
+  "glyph": "🐋"
+}

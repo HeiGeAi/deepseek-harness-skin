@@ -1,0 +1,315 @@
+/* Shared chrome skeleton for every skin.
+ *
+ * The 13 legacy sheets each carried their own copy of these ~24 selectors with
+ * the colours inlined, which is how ~4900 lines of near-duplicate CSS came
+ * about — and why the unscoped `body [data-frame-titlebar] { display: none }`
+ * reset ended up written 11 times, one per skin, in a file that was only
+ * supposed to apply when that skin was active.
+ *
+ * Here the structure lives once. Every colour comes from a `--skin-*` variable
+ * that scripts/build-skins.mjs derives from the skin's four seeds, and the
+ * three presets — flat, glass, neon — carry the differences in shape, depth and
+ * glow. Adding a skin touches none of this file.
+ *
+ * Scoping. Everything is under `body[data-skin-chrome]`, which the client sets
+ * alongside `data-dsh-skin`, so the stock `none` look never sees these rules
+ * and the two global resets below are the only unscoped declarations in the
+ * whole skin system.
+ */
+
+/* ── global resets ──────────────────────────────────────────────────────────
+ * The titlebar is markup the app always renders; only a skin gives it a shape,
+ * so by default it stays hidden. These two rules exist exactly once, and beat
+ * the runtime-injected module styles on specificity. */
+
+body [data-frame-titlebar],
+body [data-frame-titlebar-id] {
+  display: none;
+}
+
+/* ── preset knobs ───────────────────────────────────────────────────────────
+ * The structural rules further down read only these, so a preset is a short
+ * list of values rather than a second copy of the component rules. */
+
+body[data-skin-chrome] {
+  --skin-radius: 10px;
+  --skin-radius-sm: 6px;
+  --skin-radius-bubble: 10px;
+  --skin-blur: none;
+  --skin-glow: none;
+  --skin-glow-soft: none;
+  --skin-trim: none;
+  --skin-card-alpha: 1;
+  --skin-tab-weight: 600;
+  /* Defaults for the optional parts of a theme file. `none` on --skin-hero is a
+     valid background-image layer, and `content: none` suppresses a pseudo
+     element outright, so an absent field costs nothing. */
+  --skin-hero: none;
+  --skin-hero-focus: 50% 50%;
+  --skin-glyph: none;
+  --skin-badge: none;
+}
+
+body[data-skin-chrome='flat'] {
+  --skin-radius: 3px;
+  --skin-radius-sm: 3px;
+  --skin-radius-bubble: 4px;
+  --skin-tab-weight: 700;
+}
+
+body[data-skin-chrome='glass'] {
+  --skin-radius: 12px;
+  --skin-radius-sm: 7px;
+  --skin-blur: blur(6px);
+  --skin-glow-soft: 0 2px 10px rgb(0 0 0 / 12%);
+  --skin-card-alpha: 0.84;
+}
+
+body[data-skin-chrome='neon'] {
+  --skin-radius: 12px;
+  --skin-radius-sm: 6px;
+  --skin-blur: blur(6px);
+  --skin-glow: 0 0 12px color-mix(in srgb, var(--skin-accent) 42%, transparent);
+  --skin-glow-soft: 0 0 14px color-mix(in srgb, var(--skin-accent) 24%, transparent);
+  --skin-trim: inset 0 0 0 1px color-mix(in srgb, var(--skin-secondary) 30%, transparent);
+  --skin-card-alpha: 0.8;
+}
+
+/* ── form controls ──────────────────────────────────────────────────────── */
+
+body[data-skin-chrome] input,
+body[data-skin-chrome] textarea,
+body[data-skin-chrome] select {
+  border-radius: var(--skin-radius-sm);
+  border-color: var(--skin-edge);
+}
+
+body[data-skin-chrome] input:focus,
+body[data-skin-chrome] textarea:focus {
+  border-color: var(--skin-accent-strong);
+  outline: 1px solid var(--skin-secondary);
+  outline-offset: 0;
+}
+
+body[data-skin-chrome] button {
+  border-radius: var(--skin-radius-sm);
+  border: 1px solid var(--skin-edge);
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--dsw-alias-bg-base) 92%, #fff),
+    var(--dsw-alias-bg-base)
+  );
+}
+
+body[data-skin-chrome] button:hover {
+  border-color: var(--skin-accent-strong);
+  background-image: linear-gradient(
+    var(--dsw-alias-bg-base),
+    color-mix(in srgb, var(--skin-accent) 12%, var(--dsw-alias-bg-base))
+  );
+}
+
+body[data-skin-chrome] button:active {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--skin-accent) 16%, var(--dsw-alias-bg-base)),
+    var(--dsw-alias-bg-base)
+  );
+}
+
+/* Primary controls (send, stop) wear the accent band. */
+body[data-skin-chrome] button[data-skin-primary-button] {
+  border: 1px solid var(--skin-band-to);
+  color: var(--skin-band-ink);
+  background-image: linear-gradient(var(--skin-band-from), var(--skin-band-to));
+  box-shadow: var(--skin-glow);
+}
+
+body[data-skin-chrome] button[data-skin-primary-button]:hover {
+  background-image: linear-gradient(
+    color-mix(in srgb, #fff 12%, var(--skin-band-from)),
+    var(--skin-band-from)
+  );
+  border-color: var(--skin-accent);
+}
+
+body[data-skin-chrome] button[data-skin-primary-button]:active {
+  background-image: linear-gradient(var(--skin-band-to), var(--skin-band-from));
+}
+
+/* ── view tabs ──────────────────────────────────────────────────────────── */
+
+body[data-skin-chrome] button[data-skin-tab] {
+  border: 1px solid var(--skin-edge);
+  border-bottom: none;
+  border-radius: var(--skin-radius-sm) var(--skin-radius-sm) 0 0;
+  padding: 5px 16px;
+  font-size: 13px;
+  font-weight: var(--skin-tab-weight);
+  color: var(--dsw-alias-label-secondary);
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--dsw-alias-bg-base) 90%, #fff),
+    var(--dsw-alias-bg-base)
+  );
+}
+
+/* The stock underline indicator would double up with the tab's own shape. */
+body[data-skin-chrome] button[data-skin-tab]::after {
+  display: none;
+}
+
+body[data-skin-chrome] button[data-skin-tab]:hover {
+  border-color: var(--skin-accent-strong);
+  color: var(--dsw-alias-label-primary);
+}
+
+body[data-skin-chrome] button[data-skin-tab][aria-selected='true'] {
+  /* Grows down by 2px to meet the panel edge, hiding the seam. */
+  padding-bottom: 7px;
+  margin-bottom: -2px;
+  border-color: var(--skin-band-to);
+  color: var(--skin-band-ink);
+  background-image: linear-gradient(105deg, var(--skin-band-from), var(--skin-band-to));
+  box-shadow: var(--skin-glow);
+}
+
+/* ── surfaces ───────────────────────────────────────────────────────────── */
+
+body[data-skin-chrome] [data-composer-card] {
+  border: 1px solid color-mix(in srgb, var(--skin-accent) 45%, transparent);
+  border-radius: var(--skin-radius) var(--skin-radius) var(--skin-radius-sm) var(--skin-radius-sm);
+  background: color-mix(
+    in srgb,
+    var(--dsw-alias-bg-base) calc(var(--skin-card-alpha) * 100%),
+    transparent
+  );
+  box-shadow: var(--skin-trim), var(--skin-glow-soft);
+  backdrop-filter: var(--skin-blur);
+}
+
+body[data-skin-chrome] [data-message-bubble] {
+  border: 1px solid color-mix(in srgb, var(--skin-accent) 32%, transparent);
+  border-radius: var(--skin-radius-bubble);
+  padding: 8px 12px;
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  box-shadow: var(--skin-trim);
+}
+
+/* The hero is painted once, on the frame, which is exactly the window. Veiled
+   in the skin's own surface colour, which is what keeps body text at the
+   contrast the generator measured against that surface rather than against
+   whatever the photograph happens to be. */
+body[data-skin-chrome] [data-app-frame] {
+  background-image: linear-gradient(var(--skin-veil-soft), var(--skin-veil-soft)), var(--skin-hero);
+  background-size: cover;
+  background-position: var(--skin-hero-focus);
+}
+
+/* The conversation panel ships an opaque page background, so a skin has to
+   replace it with a wash for the frame's hero to be visible behind a
+   transcript at all. Washing here rather than repainting the photo on the
+   scrollport is the whole fix for the zoom: a second `cover` layer on a
+   scrollport is sized against its *scrollable* area, so it grew with the
+   message list and the picture ballooned the moment a conversation had any
+   length to it. One painted layer cannot do that.
+
+   `--skin-veil-over` is pre-composited against the frame's `--skin-veil-soft`,
+   so the surface underneath body text lands on exactly the colour a single
+   `--skin-veil` pass produced, which is the surface the generator audited. */
+body[data-skin-chrome] [data-conversation-panel] {
+  background-color: transparent;
+  background-image: linear-gradient(var(--skin-veil-over), var(--skin-veil-over));
+}
+
+/* Right-hand details column, the QQ-show panel in the original skins. */
+body[data-skin-chrome] [data-qq-show] {
+  border-left: 1px solid color-mix(in srgb, var(--skin-accent) 35%, transparent);
+  background: linear-gradient(var(--skin-veil), var(--skin-veil)), var(--skin-hero);
+  background-size: cover;
+  background-position: var(--skin-hero-focus);
+}
+
+body[data-skin-chrome] [data-qq-show]::before {
+  content: '';
+  display: block;
+  height: 76px;
+  background: linear-gradient(135deg, var(--skin-band-from), var(--skin-secondary));
+  border-bottom: 1px solid color-mix(in srgb, var(--skin-secondary) 60%, transparent);
+  box-shadow: var(--skin-glow-soft);
+}
+
+/* ── titlebar ───────────────────────────────────────────────────────────── */
+
+body[data-skin-chrome] [data-frame-titlebar] {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 10px;
+  background: linear-gradient(105deg, var(--skin-band-from), var(--skin-band-to));
+  border-bottom: 1px solid var(--skin-band-edge);
+  color: var(--skin-band-ink);
+  box-shadow: var(--skin-glow-soft);
+}
+
+/* The component hardcodes a penguin; a skin swaps it by collapsing the real
+   glyph to zero and drawing its own. */
+body[data-skin-chrome] [data-frame-titlebar-brand] {
+  font-size: 0;
+  margin-right: 8px;
+  line-height: 1;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-brand]::before {
+  content: var(--skin-glyph);
+  font-size: 24px;
+  line-height: 1;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-title] {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-id] {
+  display: var(--skin-badge);
+  margin-left: 10px;
+  padding: 0 10px;
+  border-left: 1px solid color-mix(in srgb, var(--skin-band-ink) 45%, transparent);
+  font-size: 13px;
+  color: var(--skin-band-ink);
+}
+
+body[data-skin-chrome] [data-frame-titlebar-controls] {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-button] {
+  width: 32px;
+  height: 27px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--skin-band-ink) 55%, transparent);
+  border-radius: var(--skin-radius-sm);
+  color: var(--skin-band-ink);
+  background: linear-gradient(var(--skin-band-from), var(--skin-band-to));
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 25px;
+  text-align: center;
+  cursor: pointer;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-button]:hover {
+  background: linear-gradient(
+    color-mix(in srgb, #fff 16%, var(--skin-band-from)),
+    var(--skin-band-from)
+  );
+}
+
+body[data-skin-chrome] [data-frame-titlebar-button]:active {
+  background: linear-gradient(var(--skin-band-to), var(--skin-band-from));
+}

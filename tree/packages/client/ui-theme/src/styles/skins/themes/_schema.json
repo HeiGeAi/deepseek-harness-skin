@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DSH skin theme",
+  "description": "The complete definition of one skin. `scripts/build-skins.mjs` turns this into generated/<id>.css plus a manifest entry; no skin CSS is written by hand. Adding a skin means dropping one of these files next to a hero image and re-running the generator.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "appearance",
+    "order",
+    "chrome",
+    "seeds"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable identifier. Must match the file name, and is what lands in `body[data-dsh-skin]` and in the persisted setting — renaming one orphans everyone's saved preference."
+    },
+    "name": {
+      "type": "object",
+      "required": [
+        "zh",
+        "en"
+      ],
+      "additionalProperties": false,
+      "description": "Display name per locale, read straight into the skin picker.",
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "order": {
+      "type": "integer",
+      "description": "Position in the skin picker. Curated rather than alphabetical, so a new skin can be slotted next to its siblings; leave gaps of 10 so inserting one does not renumber the rest."
+    },
+    "appearance": {
+      "enum": [
+        "light",
+        "dark"
+      ],
+      "description": "The colour scheme this skin pins the UI to, overriding the light/dark preference while it is active. This is the real thing, not a label: the generator derives the ramp for this scheme and boot-theme sets `data-ds-dark-theme` from it."
+    },
+    "chrome": {
+      "enum": [
+        "flat",
+        "glass",
+        "neon"
+      ],
+      "description": "Which shared component treatment the skin wears. `flat` is square, opaque and shadowless; `glass` is rounded and translucent with a soft shadow; `neon` is glass plus an accent glow. Defined once in _chrome.css."
+    },
+    "seeds": {
+      "type": "object",
+      "required": [
+        "accent",
+        "secondary",
+        "surface",
+        "text"
+      ],
+      "additionalProperties": false,
+      "description": "The four colours the whole skin is derived from. Everything else — 73 palette steps, the brand roles, the chrome band — is computed, and the generator refuses to ship a combination that fails its readability contract.",
+      "properties": {
+        "accent": {
+          "$ref": "#/$defs/hex",
+          "description": "The skin's voice: chat bubbles, the active sidebar item, the titlebar band, primary controls."
+        },
+        "secondary": {
+          "$ref": "#/$defs/hex",
+          "description": "The second voice: focus outlines, the titlebar's bottom edge, neon trim."
+        },
+        "surface": {
+          "$ref": "#/$defs/hex",
+          "description": "The page background, used verbatim. Every neutral step is solved against this, so it is the one seed that reaches the screen unmodified."
+        },
+        "text": {
+          "$ref": "#/$defs/hex",
+          "description": "Anchors the far end of the neutral ramp. Its hue and chroma survive; its lightness is re-solved to hold upstream's contrast structure."
+        }
+      }
+    },
+    "hero": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+\\.(webp|png|jpg)$",
+      "description": "File name inside skins/assets/, painted behind the app frame under a veil of the surface colour. Ship at least 1536px wide."
+    },
+    "heroFocus": {
+      "type": "string",
+      "description": "`background-position` for the hero, e.g. '50% 33%' to keep a face in frame. Defaults to centre."
+    },
+    "glyph": {
+      "type": "string",
+      "description": "Emoji shown in the titlebar in place of the component's hardcoded penguin."
+    },
+    "showBadge": {
+      "type": "boolean",
+      "description": "Whether to reveal the titlebar's QQ-number badge. The number itself lives in AppFrame.tsx, so this is a show/hide switch rather than a content override."
+    },
+    "font": {
+      "type": "string",
+      "description": "Raw `font-family` value, for skins whose era is carried by the typeface."
+    }
+  },
+  "$defs": {
+    "hex": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "naruto-sasuke",
+  "name": {
+    "zh": "火影·佐助",
+    "en": "Naruto Sasuke"
+  },
+  "order": 110,
+  "appearance": "dark",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#d8443c",
+    "secondary": "#7fb3ff",
+    "surface": "#171019",
+    "text": "#ffd9d2"
+  },
+  "hero": "naruto-sasuke-bg.webp",
+  "heroFocus": "50% 24%",
+  "glyph": "🍥"
+}

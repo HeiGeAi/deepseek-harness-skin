@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "dalao",
+  "name": {
+    "zh": "大佬·烟灰",
+    "en": "Dalao Ash"
+  },
+  "order": 160,
+  "appearance": "dark",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#e09a52",
+    "secondary": "#9aa3b0",
+    "surface": "#111111",
+    "text": "#f2e8da"
+  },
+  "hero": "dalao-bg.webp",
+  "heroFocus": "50% 8%",
+  "glyph": "🚬"
+}

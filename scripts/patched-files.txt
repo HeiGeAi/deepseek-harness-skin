@@ -1,0 +1,8 @@
+packages/client/ui-conversation/src/client/chat/MessageItem.tsx
+packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx
+packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx
+packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+packages/client/ui-layout/src/client/AppFrame.module.css
+packages/client/ui-layout/src/client/AppFrame.tsx
+packages/client/ui-layout/tests/apply.client.spec.ts
+packages/client/web/src/base.css

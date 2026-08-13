@@ -1,0 +1,21 @@
+{
+  "$schema": "./_schema.json",
+  "id": "neice-dalao",
+  "name": {
+    "zh": "内测大佬",
+    "en": "Beta Legends"
+  },
+  "order": 200,
+  "appearance": "dark",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#4aa8ff",
+    "secondary": "#6f7d99",
+    "surface": "#040f2b",
+    "text": "#d5e4fb"
+  },
+  "hero": "neice-dalao-bg.webp",
+  "heroFocus": "50% 50%",
+  "glyph": "🧪",
+  "showBadge": true
+}

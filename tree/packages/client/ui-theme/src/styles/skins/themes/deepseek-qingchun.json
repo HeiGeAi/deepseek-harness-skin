@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "deepseek-qingchun",
+  "name": {
+    "zh": "DeepSeek 青春版",
+    "en": "DeepSeek Youth"
+  },
+  "order": 190,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#2f92ea",
+    "secondary": "#8bb0cd",
+    "surface": "#f8fbfd",
+    "text": "#12293f"
+  },
+  "hero": "deepseek-qingchun-bg.webp",
+  "heroFocus": "50% 45%",
+  "glyph": "⛵"
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "liangsheng",
+  "name": {
+    "zh": "梁圣·静音",
+    "en": "Liang Sheng"
+  },
+  "order": 230,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#12459f",
+    "secondary": "#8397b5",
+    "surface": "#f3f7fc",
+    "text": "#0d1c33"
+  },
+  "hero": "liangsheng-bg.webp",
+  "heroFocus": "50% 45%",
+  "glyph": "🤫"
+}

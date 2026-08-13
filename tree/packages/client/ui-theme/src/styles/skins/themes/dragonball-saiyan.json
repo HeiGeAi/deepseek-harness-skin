@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "dragonball-saiyan",
+  "name": {
+    "zh": "龙珠·超赛",
+    "en": "Dragon Ball Saiyan"
+  },
+  "order": 150,
+  "appearance": "light",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#f5c451",
+    "secondary": "#52c7f2",
+    "surface": "#fff8e8",
+    "text": "#282033"
+  },
+  "hero": "dragonball-saiyan-bg.webp",
+  "heroFocus": "67% 3%",
+  "glyph": "💥"
+}

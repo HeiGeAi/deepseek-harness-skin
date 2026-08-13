@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "deepseek-nv-q",
+  "name": {
+    "zh": "DeepSeek 娘·Q 版",
+    "en": "DeepSeek-tan Chibi"
+  },
+  "order": 180,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#5b8fe8",
+    "secondary": "#8fa8c6",
+    "surface": "#f4f7fc",
+    "text": "#1b2b45"
+  },
+  "hero": "deepseek-nv-q-bg.webp",
+  "heroFocus": "50% 45%",
+  "glyph": "🧸"
+}

@@ -1,0 +1,224 @@
+diff --git a/packages/client/ui-conversation/src/client/chat/MessageItem.tsx b/packages/client/ui-conversation/src/client/chat/MessageItem.tsx
+index 00b5110d68..39d130119f 100644
+--- a/packages/client/ui-conversation/src/client/chat/MessageItem.tsx
++++ b/packages/client/ui-conversation/src/client/chat/MessageItem.tsx
+@@ -194,7 +194,7 @@ function UserStyleBubble({
+     <div className={css.userRow} data-pending-steering={pending || undefined} data-time-hover-root>
+       <div className={css.userStack}>
+         <ImageGallery images={images} load={imageLoader} align="end" labels={messageImageLabels(t)} />
+-        {showBubble && <div className={css.bubble}>
++        {showBubble && <div className={css.bubble} data-message-bubble>
+           {projectUserText(text)}
+           {rest.map((block, i) => <JsonBlock key={i} label={t('message.extraBlock')} payload={block} truncatedLabel={truncated} />)}
+         </div>}
+diff --git a/packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx b/packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx
+index ef1221cd99..d5a929eaf2 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx
+@@ -183,8 +183,12 @@ export function ConversationRoot({
+     </div>
+   )
+ 
++  // deepseek-harness-skin: the panel paints an opaque page background, which is
++  // what a skin has to replace with a translucent wash for the frame's hero to
++  // show behind a transcript. One hook for the whole panel keeps the header,
++  // the transcript and the composer seat on a single surface.
+   return (
+-    <div className={css.root} data-phase={phase}>
++    <div className={css.root} data-phase={phase} data-conversation-panel="">
+       {renderSlot('conversation.session.header', {})}
+       <div className={css.scrollBody} data-conversation-scroll="">
+         {renderSlot('conversation.session', {})}
+diff --git a/packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx b/packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx
+index d576aa175d..673288acde 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx
+@@ -114,6 +114,7 @@ export function ConversationSessionHeader({
+                   key={viewTab.id}
+                   type="button"
+                   role="tab"
++                  data-skin-tab
+                   aria-selected={viewTab.id === active?.id}
+                   className={clsx(css.tab, viewTab.id === active?.id && css.tabActive)}
+                   onClick={() => { actions.setView(viewTab.id) }}
+diff --git a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+index 9585677ae3..9e2cc0680c 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+@@ -760,6 +760,7 @@ export function InputBar({
+                 <button
+                   type="button"
+                   className={css.primary}
++                  data-skin-primary-button
+                   aria-label={t('input.stop')}
+                   disabled={stop === undefined}
+                   onMouseDown={keepFocus}
+@@ -775,6 +776,7 @@ export function InputBar({
+               <button
+                 type="button"
+                 className={css.primary}
++                data-skin-primary-button
+                 aria-label={primaryLabel}
+                 disabled={primaryStops ? stop === undefined : empty || disabled || machineBusy}
+                 onMouseDown={keepFocus}
+diff --git a/packages/client/ui-layout/src/client/AppFrame.module.css b/packages/client/ui-layout/src/client/AppFrame.module.css
+index ae56780133..75b884459f 100644
+--- a/packages/client/ui-layout/src/client/AppFrame.module.css
++++ b/packages/client/ui-layout/src/client/AppFrame.module.css
+@@ -1,7 +1,7 @@
+ .frame {
+   position: relative; /* anchors the drag handles, which straddle column borders */
+   display: grid;
+-  grid-template-rows: 100%;
++  grid-template-rows: auto 1fr;
+   height: 100%;
+   overflow: hidden;
+   background: var(--dsw-alias-bg-base);
+@@ -10,6 +10,14 @@
+   transition: grid-template-columns var(--ds-transition-duration-slow) var(--ds-ease-in-out);
+ }
+ 
++/* deepseek-harness-skin: the titlebar spans every column on its own row.
++   Visibility and all visuals belong to the skin sheets (default skins hide
++   it); the module owns only the grid placement. */
++.titlebar {
++  grid-column: 1 / -1;
++  min-width: 0;
++}
++
+ /* Dragging writes widths at pointer cadence; easing them would detach the
+    column from the handle. */
+ .frame[data-dragging] {
+diff --git a/packages/client/ui-layout/src/client/AppFrame.tsx b/packages/client/ui-layout/src/client/AppFrame.tsx
+index 2696dc91fa..96e73d9753 100644
+--- a/packages/client/ui-layout/src/client/AppFrame.tsx
++++ b/packages/client/ui-layout/src/client/AppFrame.tsx
+@@ -28,9 +28,11 @@ function CenterColumn(props: { children?: ReactNode }) {
+   return <div className={css.centerCol}>{props.children}</div>
+ }
+ 
+-/** Details column grid item; width 0 keeps the subtree mounted (never unmount on close). */
++/** Details column grid item; width 0 keeps the subtree mounted (never unmount on close).
++ * deepseek-harness-skin: `data-qq-show` lets QQ skins restyle the right panel
++ * as the classic QQ Show / profile column. */
+ function DetailsColumn(props: { children?: ReactNode }) {
+-  return <div className={css.detailsCol}>{props.children}</div>
++  return <div className={css.detailsCol} data-qq-show>{props.children}</div>
+ }
+ 
+ /**
+@@ -97,6 +99,12 @@ export function AppFrame({
+   })
+   const frameRef = useRef<HTMLDivElement | null>(null)
+   const [viewport, setViewport] = useState(() => window.innerWidth)
++  // deepseek-harness-skin: XP-style window chrome fold (the 「－」 button).
++  const [titlebarCollapsed, setTitlebarCollapsed] = useState(false)
++  const sessionTitle = useSessions((s) => {
++    const current = s.current
++    return current !== undefined ? s.byId[current]?.title : undefined
++  })
+ 
+   const lastSession = useRef(detailsSession)
+   useLayoutEffect(() => {
+@@ -165,11 +173,45 @@ export function AppFrame({
+     <div
+       ref={frameRef}
+       className={css.frame}
++      data-app-frame
+       style={{ gridTemplateColumns: `${cols.sidebar}px minmax(0, 1fr) ${cols.details}px` }}
+       data-sidebar-collapsed={sidebarCollapsed || undefined}
+       data-details-collapsed={cols.details === 0 || undefined}
+       data-dragging={dragging || undefined}
+     >
++      {/* deepseek-harness-skin: window chrome bar. Layout lives here; every
++          visual rule belongs to the skin sheets, which show it only under an
++          XP-style skin (`body[data-dsh-skin=…] [data-frame-titlebar]`). */}
++      {!titlebarCollapsed && (
++        <div className={css.titlebar} data-frame-titlebar>
++          <span className={css.titlebarBrand} data-frame-titlebar-brand aria-hidden="true">🐧</span>
++          <span className={css.titlebarTitle} data-frame-titlebar-title>
++            DeepSeek Harness{sessionTitle === undefined ? '' : ` — ${sessionTitle}`}
++          </span>
++          {/* QQ skins show the classic account id in the titlebar. */}
++          <span className={css.titlebarId} data-frame-titlebar-id aria-label="QQ 号">488137</span>
++          <div className={css.titlebarControls} data-frame-titlebar-controls>
++            <button
++              type="button"
++              className={css.titlebarButton}
++              data-frame-titlebar-button
++              aria-label="最小化（折叠标题栏）"
++              onClick={() => { setTitlebarCollapsed(true) }}
++            >
++              －
++            </button>
++            <button
++              type="button"
++              className={css.titlebarButton}
++              data-frame-titlebar-button
++              aria-label="切换侧栏"
++              onClick={() => { actions.toggleSidebar() }}
++            >
++              □
++            </button>
++          </div>
++        </div>
++      )}
+       <div className={css.sidebarCol}>
+         {/* Render-site slot call with live concession output: a closed
+             sidebar keeps the mounted slot at the compact-rail width, and the
+diff --git a/packages/client/ui-layout/tests/apply.client.spec.ts b/packages/client/ui-layout/tests/apply.client.spec.ts
+index 95f8cad439..ddc035c24a 100644
+--- a/packages/client/ui-layout/tests/apply.client.spec.ts
++++ b/packages/client/ui-layout/tests/apply.client.spec.ts
+@@ -11,7 +11,8 @@ import { stubSettingsScope } from '@deepseek-ai/dsh-client-test-runtime'
+ import { beforeEach, describe, expect, it, vi } from 'vitest'
+ import { SlotRegistry } from '@deepseek-ai/dsh-client-runtime/client'
+ import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+-import { apply as themeApply, inject as themeInject, ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
++import { apply as themeApply, EMPTY_CUSTOM_SKIN, inject as themeInject, ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
++import type { ThemeSettings } from '@deepseek-ai/dsh-client-ui-theme/client'
+ import { apply, inject, LayoutController } from '@deepseek-ai/dsh-client-ui-layout/client'
+ import { apply as nodeApply } from '@deepseek-ai/dsh-client-ui-layout'
+ import * as invariant from '@deepseek-ai/dsh-client-ui-layout/invariant'
+@@ -27,9 +28,14 @@ async function bench() {
+   // seam for persistence; model this bench as a remote, memory-only browser.
+   ctx.provide('locale', new LocaleRuntime(ctx))
+   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
+-  // ui-theme's Appearance row binds a durable scope through these two.
++  // ui-theme's Appearance row binds a durable scope through these two. The
++  // scope stands at the stock look because ui-theme's runtime lets a skin pin
++  // the scheme its palette was generated for, and this bench is exercising the
++  // presenter's projection of the preference, not skin pinning.
+   ctx.provide('remote', { $on: () => () => {} } as never)
+-  ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
++  const settings = stubSettingsScope<ThemeSettings>()
++  settings.publish({ status: 'ready', value: { preference: 'system', skin: 'none', customSkin: EMPTY_CUSTOM_SKIN }, revision: 1, writable: true })
++  ctx.provide('settingsScope', { bind: () => settings.scope } as never)
+   await ctx.plugin({ inject: themeInject, apply: themeApply }).await()
+   await slotsFiber.await()
+   return { ctx, slots: ctx.get('slots') as SlotRegistry }
+diff --git a/packages/client/web/src/base.css b/packages/client/web/src/base.css
+index 7ebfabe5ff..27a588b4d5 100644
+--- a/packages/client/web/src/base.css
++++ b/packages/client/web/src/base.css
+@@ -1,12 +1,18 @@
+ /* Shell-owned global base: full-height mount plus the theme token sheets.
+- * The five ui-theme sheets are the sole token source (--dsw-*); the shell
++ * The ui-theme sheets are the sole token source (--dsw-*); the shell
+  * links them here so tokens exist before any plugin CSS lands. scrollbar.css
+- * follows design-platform.css because it reads that sheet's tokens. */
++ * follows design-platform.css because it reads that sheet's tokens.
++ * deepseek-harness-skin: the generated skin index comes last so its
++ * attribute-scoped overrides beat the token sheets at equal specificity. It is
++ * one file per skin plus a shared chrome layer, all written by
++ * ui-theme/scripts/build-skins.mjs from styles/skins/themes/*.json — adding a
++ * skin never touches this list. */
+ @import '@deepseek-ai/dsh-client-ui-theme/styles/base.css';
+ @import '@deepseek-ai/dsh-client-ui-theme/styles/design-platform.css';
+ @import '@deepseek-ai/dsh-client-ui-theme/styles/scrollbar.css';
+ @import '@deepseek-ai/dsh-client-ui-theme/styles/gradient-shadow-text.css';
+ @import '@deepseek-ai/dsh-client-ui-theme/styles/shiki.css';
++@import '@deepseek-ai/dsh-client-ui-theme/styles/skins/generated/index.css';
+ 
+ html,
+ body,

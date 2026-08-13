@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "waves-2",
+  "name": {
+    "zh": "鸣潮·深紫",
+    "en": "Waves Deep Purple"
+  },
+  "order": 130,
+  "appearance": "dark",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#56e0d8",
+    "secondary": "#a98fe8",
+    "surface": "#16121f",
+    "text": "#e4def2"
+  },
+  "hero": "waves-2-bg.webp",
+  "heroFocus": "50% 27%",
+  "glyph": "🌊"
+}

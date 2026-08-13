@@ -1,0 +1,21 @@
+{
+  "$schema": "./_schema.json",
+  "id": "miku",
+  "name": {
+    "zh": "初音未来",
+    "en": "Hatsune Miku"
+  },
+  "order": 50,
+  "appearance": "light",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#19c9e5",
+    "secondary": "#ed6ec1",
+    "surface": "#f5f6fc",
+    "text": "#122c60"
+  },
+  "hero": "miku-bg.webp",
+  "heroFocus": "50% 33%",
+  "glyph": "🎤",
+  "showBadge": true
+}

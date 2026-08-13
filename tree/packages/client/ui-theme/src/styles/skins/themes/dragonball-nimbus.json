@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "dragonball-nimbus",
+  "name": {
+    "zh": "龙珠·筋斗云",
+    "en": "Dragon Ball Nimbus"
+  },
+  "order": 140,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#4fc3f7",
+    "secondary": "#f6c445",
+    "surface": "#f3f7ff",
+    "text": "#14213d"
+  },
+  "hero": "dragonball-nimbus-bg.webp",
+  "heroFocus": "72% 24%",
+  "glyph": "☁️"
+}

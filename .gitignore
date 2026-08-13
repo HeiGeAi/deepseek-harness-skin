@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+lib/
+*.tsbuildinfo
+*.log
+
+# 安装脚本产生的本机备份
+.backup/
+*.orig
+*.rej

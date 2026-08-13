@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "naruto-naruto",
+  "name": {
+    "zh": "火影·鸣人",
+    "en": "Naruto Orange"
+  },
+  "order": 100,
+  "appearance": "dark",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#f2801e",
+    "secondary": "#ffd166",
+    "surface": "#17110b",
+    "text": "#ffe3c2"
+  },
+  "hero": "naruto-naruto-bg.webp",
+  "heroFocus": "50% 27%",
+  "glyph": "🍥"
+}

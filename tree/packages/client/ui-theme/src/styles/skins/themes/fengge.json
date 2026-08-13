@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "fengge",
+  "name": {
+    "zh": "峰哥骑鲸",
+    "en": "Feng Ge"
+  },
+  "order": 220,
+  "appearance": "light",
+  "chrome": "flat",
+  "seeds": {
+    "accent": "#2f6af2",
+    "secondary": "#8b9ab5",
+    "surface": "#f8f9fc",
+    "text": "#151b2b"
+  },
+  "hero": "fengge-bg.webp",
+  "heroFocus": "50% 45%",
+  "glyph": "🕴️"
+}

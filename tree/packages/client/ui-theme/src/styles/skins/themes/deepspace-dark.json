@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "deepspace-dark",
+  "name": {
+    "zh": "恋与深空·星际",
+    "en": "Love&Deepspace Cosmos"
+  },
+  "order": 90,
+  "appearance": "dark",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#9d8bff",
+    "secondary": "#f097c8",
+    "surface": "#201a40",
+    "text": "#e8e2ff"
+  },
+  "hero": "deepspace-dark-bg.webp",
+  "heroFocus": "50% 8%",
+  "glyph": "🌌"
+}

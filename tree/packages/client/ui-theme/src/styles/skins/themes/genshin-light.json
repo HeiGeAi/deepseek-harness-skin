@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "genshin-light",
+  "name": {
+    "zh": "原神·蒙德",
+    "en": "Genshin Mondstadt"
+  },
+  "order": 60,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#5b7fd6",
+    "secondary": "#e0aa3e",
+    "surface": "#f2f1fb",
+    "text": "#2c3a6b"
+  },
+  "hero": "genshin-light-bg.webp",
+  "heroFocus": "50% 24%",
+  "glyph": "⚔️"
+}

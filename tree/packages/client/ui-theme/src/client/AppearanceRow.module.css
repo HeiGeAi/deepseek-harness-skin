@@ -1,0 +1,168 @@
+/* Appearance row (figma 'Frame 2117131228': title + cube row, column gap 8,
+ * pad 16/0, hairline separator; the section column strips it when last). */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.cubeRow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Appearance cube (figma '.Selector Cube' 276x82 r16, pad 20/32, centered
+ * icon-over-label column, gap 4); flexed down from the figma width so all
+ * three sit on one row in the 800 panel, wrapping when narrower. */
+.themeCube {
+  box-sizing: border-box;
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 20px 32px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 16px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.themeCube:hover:not(.selected) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* Selected cube: #F5F6F7 fill + #ADB2B8 border (static token — the bluish-400
+ * step has no alias-layer name). */
+.selected {
+  background: var(--dsw-alias-bg-module-platform);
+  border-color: var(--dsw-static-neutral-bluish-400);
+}
+
+/* deepseek-harness-skin picker: a compact pill row under the cubes. */
+.skinTitle {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.skinCube {
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.skinCube:hover:not(.selected) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.skinCube[disabled] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* The custom skin's file input: kept in the tree rather than hidden, because a
+ * `display: none` input cannot be opened by click() in every browser. */
+.filePicker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Version bar: the skin system's version on the left, its one action on the
+ * right. Sits below the picker as a quiet footer rather than a fourth control
+ * row — it is status, and only becomes a control when the user asks it to. */
+.versionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.versionText {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.versionButton {
+  flex: none;
+  padding: 2px 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.versionButton:hover:not([disabled]) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.versionButton[disabled] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Skin swatch: a 34×22 mock window — the titlebar band over that skin's own
+ * surface, with its hero photo showing through the same veil the app uses. All
+ * four variables come from the generated `[data-skin-preview]` scope carried by
+ * the button, so a swatch costs no per-skin CSS and can never drift from the
+ * skin it previews. `none` has no such scope and falls back to stock tokens. */
+.skinSwatch {
+  flex: none;
+  width: 34px;
+  height: 22px;
+  border: 1px solid var(--skin-edge, var(--dsw-alias-border-l2));
+  border-radius: 4px;
+  background:
+    linear-gradient(
+      105deg,
+      var(--skin-band-from, var(--dsw-alias-bg-module-platform)),
+      var(--skin-band-to, var(--dsw-alias-bg-module-platform))
+    ) 0 0 / 100% 7px no-repeat,
+    linear-gradient(var(--skin-veil, transparent), var(--skin-veil, transparent)) 0 0 / cover no-repeat,
+    var(--skin-hero, none) 50% 50% / cover no-repeat;
+  /* After the shorthand, which resets it. */
+  background-color: var(--skin-surface, var(--dsw-alias-bg-base));
+}

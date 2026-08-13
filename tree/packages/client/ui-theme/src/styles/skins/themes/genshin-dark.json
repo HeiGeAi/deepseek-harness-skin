@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "genshin-dark",
+  "name": {
+    "zh": "原神·璃月夜",
+    "en": "Genshin Liyue Night"
+  },
+  "order": 70,
+  "appearance": "dark",
+  "chrome": "neon",
+  "seeds": {
+    "accent": "#e0b458",
+    "secondary": "#7a86d8",
+    "surface": "#171a2e",
+    "text": "#f0e6c8"
+  },
+  "hero": "genshin-dark-bg.webp",
+  "heroFocus": "50% 17%",
+  "glyph": "⚔️"
+}

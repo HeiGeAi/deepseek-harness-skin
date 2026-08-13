@@ -1,0 +1,19 @@
+{
+  "$schema": "./_schema.json",
+  "id": "qq-2007",
+  "name": {
+    "zh": "QQ 2007",
+    "en": "QQ 2007"
+  },
+  "order": 10,
+  "appearance": "light",
+  "chrome": "flat",
+  "seeds": {
+    "accent": "#1e6eb5",
+    "secondary": "#0b3c6d",
+    "surface": "#c3d5e6",
+    "text": "#1a1a1a"
+  },
+  "glyph": "🐧",
+  "font": "'宋体', SimSun, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "qq-2008",
+  "name": {
+    "zh": "QQ 2008·粉",
+    "en": "QQ 2008 Pink"
+  },
+  "order": 20,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#c8447e",
+    "secondary": "#d98bb0",
+    "surface": "#f6e2ec",
+    "text": "#2b1020"
+  },
+  "glyph": "🐧",
+  "showBadge": true,
+  "font": "'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif"
+}

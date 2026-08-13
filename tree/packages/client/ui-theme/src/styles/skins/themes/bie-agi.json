@@ -1,0 +1,20 @@
+{
+  "$schema": "./_schema.json",
+  "id": "bie-agi",
+  "name": {
+    "zh": "别影响 AGI",
+    "en": "Don't Disturb AGI"
+  },
+  "order": 210,
+  "appearance": "light",
+  "chrome": "glass",
+  "seeds": {
+    "accent": "#3f6fe0",
+    "secondary": "#8296bd",
+    "surface": "#eaf0fd",
+    "text": "#141f3a"
+  },
+  "hero": "bie-agi-bg.webp",
+  "heroFocus": "50% 50%",
+  "glyph": "🐳"
+}
