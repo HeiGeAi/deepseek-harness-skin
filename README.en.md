@@ -15,6 +15,8 @@
 
 Built by [HeiGeAi](https://github.com/HeiGeAi) · More projects at the [HeiGeAi org page](https://github.com/HeiGeAi)
 
+Behind the build (Chinese): [DeepSeek 刚开源的 DSH 已经 5 万星，我给它做了 21 套皮肤](https://mp.weixin.qq.com/s/o6HdY5zi-e3gCkB_-HUKMA)
+
 </div>
 
 ![Skin picker and version bar](docs/images/skin-center.webp)

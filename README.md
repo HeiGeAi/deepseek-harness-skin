@@ -15,7 +15,9 @@
 
 [快速开始](#快速开始) · [它长这样](#它长这样) · [做你自己的皮肤](#用一张图做你自己的皮肤) · [内置 21 套](#内置-21-套皮肤) · [使用须知](#使用须知都是实话) · [English](README.en.md)
 
-出品：公众号「黑哥Ai」 · 短视频「黑哥AI实验室」 · 更多开源见 [HeiGeAi 组织主页](https://github.com/HeiGeAi)
+**幕后文章**：[DeepSeek 刚开源的 DSH 已经 5 万星，我给它做了 21 套皮肤](https://mp.weixin.qq.com/s/o6HdY5zi-e3gCkB_-HUKMA)
+
+出品：公众号「黑哥Ai」 · 短视频「问问黑哥」 · 更多开源见 [HeiGeAi 组织主页](https://github.com/HeiGeAi)
 
 </div>
 
@@ -167,7 +169,9 @@ pnpm --filter @deepseek-ai/dsh-client-ui-theme run check:skins
 
 ## 作者与同系项目
 
-由 [黑哥AI（HeiGeAi）](https://github.com/HeiGeAi) 打造。公众号「黑哥Ai」写 AI 落地深度文章，短视频账号「黑哥AI实验室」在抖音、B站、视频号、小红书讲人话 AI 科普。
+由 [黑哥AI（HeiGeAi）](https://github.com/HeiGeAi) 打造。公众号「黑哥Ai」写 AI 落地深度文章，短视频账号「问问黑哥」在抖音、B站、视频号、小红书讲人话 AI 科普。
+
+这套皮肤从想法到发布的完整过程，写在这篇里：[DeepSeek 刚开源的 DSH 已经 5 万星，我给它做了 21 套皮肤](https://mp.weixin.qq.com/s/o6HdY5zi-e3gCkB_-HUKMA)
 
 同系换肤项目：[HeiGe Codex Skin Studio](https://github.com/HeiGeAi/heige-codex-skin-studio)，给 Codex Desktop 和腾讯 WorkBuddy 换肤，本项目的 12 张背景图与它共用同一份素材库。更多开源见 [HeiGeAi 组织主页](https://github.com/HeiGeAi)。
 
