@@ -128,7 +128,7 @@ The Settings panel shows `Skin system v1.0.0 · DSH 0.1.0-rc.5` with a "Check fo
 
 - This is a **source-level change**: the installer overwrites `packages/client/ui-theme` and applies an 8-file patch, so a `pnpm run build` is required. Nothing is injected at runtime and no process is hijacked.
 - The baseline is `0.1.0-rc.5`. DSH is still in developer preview, so upstream UI changes may break the patch; the installer fails loudly instead of half-installing.
-- After installation the full DSH suite still passes: 811 test files, 13548 tests, 100% coverage across statements, branches, functions, and lines, with per-file thresholds.
+- After installation the full DSH suite still passes: 811 test files, 13548 tests, 100% coverage across statements, branches, functions, and lines, with per-file thresholds. That figure is the **host DSH full suite** (run inside an installed DSH checkout); this repo itself ships no CI to reproduce it. What runs directly from this repo is the skin readability contract: `node tree/packages/client/ui-theme/scripts/build-skins.mjs --check`.
 - Custom skins stay local. Compressed images live in `~/.dsh/skins/`; the uninstaller leaves them alone.
 - The upload route validates the WebP magic bytes and cuts off any request past 4MB instead of buffering it.
 

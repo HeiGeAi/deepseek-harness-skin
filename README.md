@@ -162,7 +162,7 @@ pnpm --filter @deepseek-ai/dsh-client-ui-theme run check:skins
 
 - 这是**源码级改动**，走 `install.sh` 覆盖 `packages/client/ui-theme` 并打一个 8 文件的宿主补丁，需要重新 `pnpm run build`。不是运行时注入，也不劫持任何进程。
 - 基线版本是 `0.1.0-rc.5`。DSH 还在 developer preview，上游改动界面结构时补丁可能打不上，脚本会明确报错而不是装出一半。
-- 装完之后 DSH 全量测试仍然是绿的：811 个测试文件、13548 个用例通过，覆盖率 100%（语句 / 分支 / 函数 / 行四项全满），逐文件阈值。
+- 装完之后 DSH 全量测试仍然是绿的：811 个测试文件、13548 个用例通过，覆盖率 100%（语句 / 分支 / 函数 / 行四项全满），逐文件阈值。注意这个口径是**宿主 DSH 全量测试**（在装好的 DSH 检出里跑），本仓库自身没有 CI 复现路径；仓库内可直接跑的是皮肤可读性契约：`node tree/packages/client/ui-theme/scripts/build-skins.mjs --check`。
 - 自定义皮肤只在**本机**流转，压缩后的图存 `~/.dsh/skins/`，卸载脚本不动它，不要可以自己删。
 - 上传路由只认 WebP 魔数，超过 4MB 的请求会被直接掐断而不是缓存进内存。
 - 内置皮肤的背景图来源与再分发状态逐文件登记在 [ASSET_PROVENANCE.md](ASSET_PROVENANCE.md)，发布边界见 [NOTICE.md](NOTICE.md)。
