@@ -14,6 +14,9 @@ say() { printf '  %s\n' "$*"; }
 [ -d "$TARGET" ] || die "目录不存在：$TARGET"
 TARGET="$(cd "$TARGET" && pwd)"
 
+grep -q '"@deepseek-ai/dsh-root"' "$TARGET/package.json" 2>/dev/null \
+  || die "这不像是 deepseek-harness 源码检出：$TARGET"
+
 ROOT="$HOME/.dsh-skin-backups"
 [ -d "$ROOT" ] || die "没有找到任何备份（$ROOT 不存在）"
 
@@ -32,6 +35,11 @@ if [ -z "$STAMP" ]; then
 fi
 BACKUP="$ROOT/$STAMP"
 [ -d "$BACKUP" ] || die "备份不存在：$BACKUP"
+
+# 显式传入时间戳同样强制校验归属，防止把别的仓库的备份还原进来
+if [ -f "$BACKUP/.target" ] && [ "$(cat "$BACKUP/.target")" != "$TARGET" ]; then
+  die "这份备份属于 $(cat "$BACKUP/.target")，与目标 $TARGET 不匹配"
+fi
 
 # 备份本身带皮肤就说明它记录的是「装过之后」的状态，还原它等于没卸载
 [ -f "$BACKUP/packages/client/ui-theme/src/skin-version.ts" ] \
