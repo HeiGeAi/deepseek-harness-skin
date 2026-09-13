@@ -131,7 +131,17 @@ export async function handleSkinImage(req: IncomingMessage, res: ServerResponse)
     return
   }
   /* v8 ignore next -- `?? '/'` arm: node:http always sets url on server requests. */
-  const pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname)
+  let pathname: string
+  try {
+    pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname)
+  } catch {
+    // A malformed percent-encoding (e.g. `%zz`) raises URIError out of
+    // decodeURIComponent. Answering 404 keeps one junk request from becoming
+    // an unhandled rejection that takes the Host process down.
+    res.writeHead(404)
+    res.end()
+    return
+  }
   const name = pathname.startsWith(`${SKIN_IMAGE_ROUTE}/`)
     ? pathname.slice(SKIN_IMAGE_ROUTE.length + 1)
     : ''

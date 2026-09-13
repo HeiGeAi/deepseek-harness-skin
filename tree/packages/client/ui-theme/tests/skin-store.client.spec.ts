@@ -185,6 +185,14 @@ describe('handleSkinImage', () => {
     }
   })
 
+  it('answers 404 rather than throwing on a malformed percent-encoding', async () => {
+    // decodeURIComponent raises URIError on '%zz'; the route must turn that
+    // into a plain 404 instead of an unhandled rejection.
+    const { res, answer } = response()
+    await handleSkinImage(request('GET', `${SKIN_IMAGE_ROUTE}/%zz`), res)
+    expect(answer.status).toBe(404)
+  })
+
   it('answers 404 when the document outlives its image', async () => {
     const name = await stored()
     await rm(join(home, SKIN_STORE_DIR, name))
