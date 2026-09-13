@@ -133,7 +133,7 @@ function VersionBar({ t }: Pick<AppearanceRowComponentProps, 't'>) {
       <button
         type="button"
         className={css.versionButton}
-        disabled={state === 'checking' || state === 'current'}
+        disabled={state === 'checking'}
         onClick={instruction === null ? onCheck : () => { onCopy(instruction) }}
       >
         {instruction === null ? t('appearance.version.check') : t('appearance.version.copy')}
