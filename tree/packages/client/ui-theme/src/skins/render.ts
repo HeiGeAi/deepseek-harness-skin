@@ -24,7 +24,7 @@ import type { DerivedSkin, SkinTheme } from './derive.ts'
  * @returns the text with every CSS-significant metacharacter removed.
  */
 function cssSafe(value: string): string {
-  return value.replace(/[*/;{}<>\'"]/g, '')
+  return value.replace(/[*/;{}<>\'"]/g, '').replace(/[\x00-\x1f\x7f]/g, '')
 }
 
 /**
