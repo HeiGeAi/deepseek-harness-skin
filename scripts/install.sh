@@ -57,9 +57,16 @@ if git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
     die "补丁打不上。你的 deepseek-harness 版本可能和本皮肤包不匹配（本包基于 0.1.0-rc.5），请手工比对 patches/host-integration.patch"
   fi
 else
-  patch -p1 --forward --silent < "$HERE/patches/host-integration.patch" \
-    || die "补丁打不上，请手工比对 patches/host-integration.patch"
-  ok "已打宿主集成补丁"
+  # patch 逐文件落盘，先 --dry-run 全量预检，打不上就一个文件都不动（-f 非交互，问题一律按否处理）
+  if patch -f -p1 --forward --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
+    patch -f -p1 --forward --silent < "$HERE/patches/host-integration.patch" \
+      || die "补丁打不上，请手工比对 patches/host-integration.patch"
+    ok "已打宿主集成补丁"
+  elif patch -f -p1 --reverse --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
+    ok "宿主集成补丁已在，跳过"
+  else
+    die "补丁打不上（预检失败，未落盘任何改动）。你的 deepseek-harness 版本可能和本皮肤包不匹配（本包基于 0.1.0-rc.5），请手工比对 patches/host-integration.patch"
+  fi
 fi
 
 printf '\n\033[1m接下来手动跑这三条\033[0m\n'
