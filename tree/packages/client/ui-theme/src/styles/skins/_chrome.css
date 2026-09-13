@@ -23,7 +23,8 @@
  * the runtime-injected module styles on specificity. */
 
 body [data-frame-titlebar],
-body [data-frame-titlebar-id] {
+body [data-frame-titlebar-id],
+body [data-frame-titlebar-restore] {
   display: none;
 }
 
@@ -312,4 +313,29 @@ body[data-skin-chrome] [data-frame-titlebar-button]:hover {
 
 body[data-skin-chrome] [data-frame-titlebar-button]:active {
   background: linear-gradient(var(--skin-band-to), var(--skin-band-from));
+}
+
+/* Folded-state restore handle: a small tab on the empty titlebar row, so
+   folding the bar never strands the user without a way back. */
+body[data-skin-chrome] [data-frame-titlebar-restore] {
+  display: block;
+  margin: 4px 8px;
+  padding: 0 10px;
+  height: 20px;
+  border: 1px solid color-mix(in srgb, var(--skin-band-ink) 55%, transparent);
+  border-radius: var(--skin-radius-sm);
+  color: var(--skin-band-ink);
+  background: linear-gradient(var(--skin-band-from), var(--skin-band-to));
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+}
+
+body[data-skin-chrome] [data-frame-titlebar-restore]:hover {
+  background: linear-gradient(
+    color-mix(in srgb, #fff 16%, var(--skin-band-from)),
+    var(--skin-band-from)
+  );
 }

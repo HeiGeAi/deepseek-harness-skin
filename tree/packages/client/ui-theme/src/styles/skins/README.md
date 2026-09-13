@@ -64,6 +64,7 @@ DSH Web GUI 的视觉皮肤层。皮肤由数据源生成，不手写 CSS：一�
 - `[data-frame-titlebar-brand]` / `[data-frame-titlebar-title]` /
   `[data-frame-titlebar-id]` / `[data-frame-titlebar-controls]` /
   `[data-frame-titlebar-button]`：顶栏内容。
+- `[data-frame-titlebar-restore]`：顶栏折叠后的展开按钮（皮肤显隐，默认外观不显示）。
 - `[data-composer-card]`：会话输入卡片。
 - `[data-message-bubble]`：用户消息气泡。
 - `[data-app-frame]`：铺背景图的容器，整窗一张，只有这里画。

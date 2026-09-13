@@ -74,7 +74,7 @@ index ae56780133..75b884459f 100644
    height: 100%;
    overflow: hidden;
    background: var(--dsw-alias-bg-base);
-@@ -10,6 +10,14 @@
+@@ -10,6 +10,20 @@
    transition: grid-template-columns var(--ds-transition-duration-slow) var(--ds-ease-in-out);
  }
  
@@ -84,6 +84,12 @@ index ae56780133..75b884459f 100644
 +.titlebar {
 +  grid-column: 1 / -1;
 +  min-width: 0;
++}
++
++/* The restore handle takes the same full-width row when the bar is folded. */
++.titlebarRestore {
++  grid-column: 1 / -1;
++  justify-self: end;
 +}
 +
  /* Dragging writes widths at pointer cadence; easing them would detach the
@@ -120,7 +126,7 @@ index 2696dc91fa..96e73d9753 100644
  
    const lastSession = useRef(detailsSession)
    useLayoutEffect(() => {
-@@ -165,11 +173,45 @@ export function AppFrame({
+@@ -165,11 +173,58 @@ export function AppFrame({
      <div
        ref={frameRef}
        className={css.frame}
@@ -162,6 +168,19 @@ index 2696dc91fa..96e73d9753 100644
 +            </button>
 +          </div>
 +        </div>
++      )}
++      {/* Folded state keeps a way back: a small restore handle on the now
++          empty titlebar row, so collapsing never strands the user. */}
++      {titlebarCollapsed && (
++        <button
++          type="button"
++          className={css.titlebarRestore}
++          data-frame-titlebar-restore
++          aria-label="展开标题栏"
++          onClick={() => { setTitlebarCollapsed(false) }}
++        >
++          ＋
++        </button>
 +      )}
        <div className={css.sidebarCol}>
          {/* Render-site slot call with live concession output: a closed
