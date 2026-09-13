@@ -11,7 +11,7 @@
  */
 
 /** Current skin system version, as a strict three-part release. */
-export const SKIN_VERSION = '1.0.0'
+export const SKIN_VERSION = '1.0.1'
 
 /** Owner/name of the repository releases are cut from. */
 export const SKIN_REPO = 'HeiGeAi/deepseek-harness-skin'
