@@ -133,6 +133,22 @@ describe('handleSkinUpload', () => {
     expect(answer.status).toBe(413)
     expect(destroyed).toHaveBeenCalled()
   })
+
+  it('refuses a new image once the store holds 64, but still dedupes', async () => {
+    for (let i = 0; i < 64; i += 1) {
+      const { res, answer } = response()
+      await handleSkinUpload(request('POST', SKIN_UPLOAD_ROUTE, webp(String(i).padStart(8, 'x'))), res)
+      expect(answer.status).toBe(200)
+    }
+    // A 65th distinct picture is over the ceiling.
+    const { res, answer } = response()
+    await handleSkinUpload(request('POST', SKIN_UPLOAD_ROUTE, webp('overflow')), res)
+    expect(answer.status).toBe(507)
+    // Re-uploading one already stored rewrites identical bytes, never counts.
+    const again = response()
+    await handleSkinUpload(request('POST', SKIN_UPLOAD_ROUTE, webp(String(0).padStart(8, 'x'))), again.res)
+    expect(again.answer.status).toBe(200)
+  })
 })
 
 describe('handleSkinImage', () => {

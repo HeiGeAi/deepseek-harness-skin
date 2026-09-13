@@ -14,7 +14,7 @@
  */
 
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { join } from 'node:path'
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
@@ -32,6 +32,17 @@ const MAX_BYTES = 4 * 1024 * 1024
 
 /** The only filename shape this store issues, and therefore the only one it serves. */
 const NAME = /^skin-[0-9a-f]{32}\.webp$/
+
+/**
+ * Most images the store holds. The upload route answers to any process that
+ * can reach the Host port, and content addressing only dedupes identical
+ * bytes, so without a ceiling a hostile local process could fill the disk one
+ * random picture at a time.
+ */
+const MAX_FILES = 64
+
+/** Most bytes the store may hold in total, counting what is already there. */
+const MAX_TOTAL_BYTES = MAX_FILES * MAX_BYTES
 
 /** webp's container signature: `RIFF....WEBP`. */
 const RIFF = 'RIFF'
@@ -68,12 +79,52 @@ async function readBody(req: IncomingMessage): Promise<Buffer | null> {
 }
 
 /**
+ * The content-addressed name one body is stored and served under.
+ * @param bytes - the webp body.
+ * @returns the filename.
+ */
+function skinImageName(bytes: Buffer): string {
+  return `skin-${createHash('sha256').update(bytes).digest('hex').slice(0, 32)}.webp`
+}
+
+/**
+ * Whether the store can take one more image of this size.
+ *
+ * Re-uploading a picture already stored rewrites identical bytes, so it never
+ * counts against the ceiling; only a genuinely new image does.
+ * @param name - the name the upload would be stored under.
+ * @param size - the upload's size in bytes.
+ * @returns whether the write stays within the store's ceiling.
+ */
+async function hasRoom(name: string, size: number): Promise<boolean> {
+  const dir = dshHomePath(SKIN_STORE_DIR)
+  let entries: string[]
+  try {
+    entries = await readdir(dir)
+  } catch {
+    // No directory yet means nothing stored, which always has room.
+    return true
+  }
+  if (entries.includes(name)) return true
+  if (entries.length >= MAX_FILES) return false
+  let total = size
+  for (const entry of entries) {
+    /* v8 ignore next 3 -- a concurrent manual delete between readdir and stat. */
+    try {
+      total += (await stat(join(dir, entry))).size
+    } catch { continue }
+    if (total > MAX_TOTAL_BYTES) return false
+  }
+  return true
+}
+
+/**
  * Write one uploaded image and return the name it is served under.
  * @param bytes - the webp body.
  * @returns the content-addressed filename.
  */
 async function storeSkinImage(bytes: Buffer): Promise<string> {
-  const name = `skin-${createHash('sha256').update(bytes).digest('hex').slice(0, 32)}.webp`
+  const name = skinImageName(bytes)
   await mkdir(dshHomePath(SKIN_STORE_DIR), { recursive: true })
   // Re-uploading the same picture rewrites identical bytes, which is cheaper
   // than stat-ing first and removes the window where a concurrent read sees a
@@ -112,6 +163,11 @@ export async function handleSkinUpload(req: IncomingMessage, res: ServerResponse
   if (!isWebp) {
     res.writeHead(415, { 'content-type': 'application/json' })
     res.end(JSON.stringify({ error: 'expected a webp image' }))
+    return
+  }
+  if (!await hasRoom(skinImageName(bytes), bytes.length)) {
+    res.writeHead(507, { 'content-type': 'application/json' })
+    res.end(JSON.stringify({ error: 'skin image store is full' }))
     return
   }
   const image = await storeSkinImage(bytes)
