@@ -98,7 +98,11 @@ function renderSkin(theme, derived) {
 function renderManifest(themes) {
   // Single quotes and bare keys where legal, so the emitted file reads like the
   // hand-written source it replaces and needs no lint exemption.
-  const str = value => `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+  // Reject control characters: a raw newline in a name would emit invalid TS.
+  const str = value => {
+    if (/[\x00-\x1f\x7f]/.test(value)) throw new Error(`control character in value: ${JSON.stringify(value)}`)
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+  }
   const key = id => /^[A-Za-z_$][\w$]*$/.test(id) ? id : str(id)
   const rows = themes.map(t => [
     `  ${key(t.id)}: {`,
@@ -142,7 +146,11 @@ export type GeneratedSkinId = keyof typeof SKIN_MANIFEST
  */
 function renderStock(families, hex, aliases) {
   const num = value => Number(value.toFixed(6))
-  const str = value => `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+  // Reject control characters: a raw newline in a name would emit invalid TS.
+  const str = value => {
+    if (/[\x00-\x1f\x7f]/.test(value)) throw new Error(`control character in value: ${JSON.stringify(value)}`)
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+  }
   const steps = family => families[family]
     .map(s => `      { name: '${s.name}', L: ${num(s.L)}, C: ${num(s.C)}, h: ${num(s.h)} },`)
     .join('\n')
