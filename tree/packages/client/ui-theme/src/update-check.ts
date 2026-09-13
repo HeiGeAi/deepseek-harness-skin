@@ -124,13 +124,19 @@ export function compareVersions(a: string, b: string): number | null {
  * under the package root, so the same relative hop resolves from either.
  * @returns the version, or null when the manifest is missing or malformed.
  */
+/* The installed version is fixed for the process lifetime, so read it once. */
+let cachedHarnessVersion: string | null | undefined
+
 async function harnessVersion(): Promise<string | null> {
+  if (cachedHarnessVersion !== undefined) return cachedHarnessVersion
   try {
     const path = fileURLToPath(new URL('../package.json', import.meta.url))
     const manifest = JSON.parse(await readFile(path, 'utf8')) as { version?: unknown }
-    return typeof manifest.version === 'string' ? manifest.version : null
+    cachedHarnessVersion = typeof manifest.version === 'string' ? manifest.version : null
+    return cachedHarnessVersion
   } catch {
     /* v8 ignore next -- the manifest ships inside the package. */
+    cachedHarnessVersion = null
     return null
   }
 }
