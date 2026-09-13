@@ -41,7 +41,7 @@ else
 fi
 
 # 2. 覆盖 ui-theme 包
-rsync -a --exclude 'node_modules' --exclude 'dist' --exclude 'lib' \
+rsync -a --delete --exclude 'node_modules' --exclude 'dist' --exclude 'lib' \
   "$HERE/tree/packages/client/ui-theme/" "$TARGET/packages/client/ui-theme/"
 ok "已写入 ui-theme 皮肤包（21 套预设 + 自定义皮肤 + 更新检查）"
 
