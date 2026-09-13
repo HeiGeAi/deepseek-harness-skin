@@ -87,18 +87,39 @@ export const EMPTY_CUSTOM_SKIN: CustomSkin = {
   seeds: { accent: '#4d6bfe', secondary: '#8b95b5', surface: '#ffffff', text: '#141414' },
 }
 
-/** Durable shape of the user's own skin. */
+/** A seed colour exactly as the extractor writes it: `#` plus six lowercase hex digits. */
+const HEX_COLOR = /^#[0-9a-f]{6}$/
+
+/** `background-position` as one or two keywords or percentages, nothing else. */
+const FOCUS_POSITION = /^(?:\d{1,3}%|left|right|center|top|bottom)(?: (?:\d{1,3}%|left|right|center|top|bottom))?$/
+
+/**
+ * The filename shape the image store issues, or empty for an unmade skin.
+ * Deliberately a character whitelist rather than the full hash grammar: the
+ * read route already refuses anything off its own stricter pattern, and what
+ * matters here is that no CSS metacharacter can ride into `url("…")`.
+ */
+const IMAGE_NAME = /^$|^skin-[0-9a-z-]{1,64}\.webp$/
+
+/**
+ * Durable shape of the user's own skin.
+ *
+ * seeds, focus and image are interpolated into CSS text by the render layer,
+ * so the schema pins them to the exact grammars the pipeline produces: a
+ * hand-edited or plugin-written document that carries anything else is
+ * rejected at the settings boundary instead of reaching a stylesheet.
+ */
 export const CustomSkinSchema: z<CustomSkin> = z.object({
-  image: z.string().default(EMPTY_CUSTOM_SKIN.image),
+  image: z.string().pattern(IMAGE_NAME).default(EMPTY_CUSTOM_SKIN.image),
   appearance: z.union([z.const('light'), z.const('dark')]).default(EMPTY_CUSTOM_SKIN.appearance),
   chrome: z.union([z.const('flat'), z.const('glass'), z.const('neon')]).default(EMPTY_CUSTOM_SKIN.chrome),
   veil: z.number().min(0).max(1).default(EMPTY_CUSTOM_SKIN.veil),
-  focus: z.string().default(EMPTY_CUSTOM_SKIN.focus),
+  focus: z.string().pattern(FOCUS_POSITION).default(EMPTY_CUSTOM_SKIN.focus),
   seeds: z.object({
-    accent: z.string().default(EMPTY_CUSTOM_SKIN.seeds.accent),
-    secondary: z.string().default(EMPTY_CUSTOM_SKIN.seeds.secondary),
-    surface: z.string().default(EMPTY_CUSTOM_SKIN.seeds.surface),
-    text: z.string().default(EMPTY_CUSTOM_SKIN.seeds.text),
+    accent: z.string().pattern(HEX_COLOR).default(EMPTY_CUSTOM_SKIN.seeds.accent),
+    secondary: z.string().pattern(HEX_COLOR).default(EMPTY_CUSTOM_SKIN.seeds.secondary),
+    surface: z.string().pattern(HEX_COLOR).default(EMPTY_CUSTOM_SKIN.seeds.surface),
+    text: z.string().pattern(HEX_COLOR).default(EMPTY_CUSTOM_SKIN.seeds.text),
   }),
 })
 

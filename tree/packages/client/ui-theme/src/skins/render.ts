@@ -16,6 +16,18 @@
 import type { DerivedSkin, SkinTheme } from './derive.ts'
 
 /**
+ * Last-resort scrub for free-text values interpolated into CSS. The settings
+ * schema already pins seeds and focus to tight grammars; this catches whatever
+ * reaches the formatter without crossing that boundary, removing the
+ * characters that could close a comment or break out of a declaration.
+ * @param value - the candidate text.
+ * @returns the text with every CSS-significant metacharacter removed.
+ */
+function cssSafe(value: string): string {
+  return value.replace(/[*/;{}<>\'"]/g, '')
+}
+
+/**
  * Format one skin's rules.
  *
  * Two blocks come out. The first carries the `--skin-*` chrome inputs and is
@@ -35,14 +47,14 @@ export function renderSkinCss(
   const scope = `body[data-dsh-skin='${theme.id}']`
   const lines: string[] = []
 
-  lines.push(`/* seeds: accent ${theme.seeds.accent} · secondary ${theme.seeds.secondary}`)
-  lines.push(` * surface ${theme.seeds.surface} · text ${theme.seeds.text} · ${theme.appearance} */`)
+  lines.push(`/* seeds: accent ${cssSafe(theme.seeds.accent)} · secondary ${cssSafe(theme.seeds.secondary)}`)
+  lines.push(` * surface ${cssSafe(theme.seeds.surface)} · text ${cssSafe(theme.seeds.text)} · ${theme.appearance} */`)
   lines.push(`${scope},`)
   lines.push(`[data-skin-preview='${theme.id}'] {`)
   for (const name of Object.keys(derived.chrome)) lines.push(`  ${name}: ${derived.chrome[name]};`)
   if (theme.hero !== undefined) {
     lines.push(`  --skin-hero: ${heroUrl(theme.hero)};`)
-    lines.push(`  --skin-hero-focus: ${theme.heroFocus ?? '50% 50%'};`)
+    lines.push(`  --skin-hero-focus: ${cssSafe(theme.heroFocus ?? '50% 50%')};`)
   }
   if (theme.glyph !== undefined) lines.push(`  --skin-glyph: '${theme.glyph}';`)
   // The badge's digits live in AppFrame.tsx, so a skin only reveals or hides it.
