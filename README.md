@@ -17,7 +17,7 @@
 
 **幕后文章**：[DeepSeek 刚开源的 DSH 已经 5 万星，我给它做了 21 套皮肤](https://mp.weixin.qq.com/s/o6HdY5zi-e3gCkB_-HUKMA)
 
-出品：公众号「黑哥Ai」 · 短视频「问问黑哥」 · 更多开源见 [HeiGeAi 组织主页](https://github.com/HeiGeAi)
+出品：公众号「问问黑哥」 · 短视频「问问黑哥」 · 更多开源见 [HeiGeAi 组织主页](https://github.com/HeiGeAi)
 
 </div>
 
@@ -169,7 +169,7 @@ pnpm --filter @deepseek-ai/dsh-client-ui-theme run check:skins
 
 ## 作者与同系项目
 
-由 [黑哥AI（HeiGeAi）](https://github.com/HeiGeAi) 打造。公众号「黑哥Ai」写 AI 落地深度文章，短视频账号「问问黑哥」在抖音、B站、视频号、小红书讲人话 AI 科普。
+由 [问问黑哥（HeiGeAi）](https://github.com/HeiGeAi) 打造。公众号「问问黑哥」写 AI 落地深度文章，短视频账号「问问黑哥」在抖音、B站、视频号、小红书讲人话 AI 科普。
 
 这套皮肤从想法到发布的完整过程，写在这篇里：[DeepSeek 刚开源的 DSH 已经 5 万星，我给它做了 21 套皮肤](https://mp.weixin.qq.com/s/o6HdY5zi-e3gCkB_-HUKMA)
 
