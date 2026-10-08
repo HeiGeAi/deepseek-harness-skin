@@ -23,6 +23,64 @@ grep -q '"@deepseek-ai/dsh-root"' "$TARGET/package.json" 2>/dev/null \
 printf '\n\033[1mDeepSeek Harness Skin 安装\033[0m\n'
 say "目标仓库：$TARGET"
 
+# Preflight every input and patch direction before modifying the target.
+command -v rsync >/dev/null || die "需要 rsync"
+command -v patch >/dev/null || die "需要 patch"
+[ -d "$HERE/tree/packages/client/ui-theme" ] || die "缺少皮肤包"
+[ -f "$HERE/patches/host-integration.patch" ] || die "缺少宿主补丁"
+while IFS= read -r rel; do
+  [ -f "$TARGET/$rel" ] || die "缺少宿主文件：$rel"
+done < "$HERE/scripts/patched-files.txt"
+cd "$TARGET"
+APPLY=0
+USE_GIT=0
+if git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
+  USE_GIT=1
+  if git apply --check "$HERE/patches/host-integration.patch" 2>/dev/null; then
+    APPLY=1
+  elif ! git apply --check --reverse "$HERE/patches/host-integration.patch" 2>/dev/null; then
+    die "补丁预检失败，未修改目标；请检查宿主版本兼容性"
+  fi
+else
+  if patch -f -p1 --forward --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
+    APPLY=1
+  elif ! patch -f -p1 --reverse --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
+    die "补丁预检失败，未修改目标；请检查宿主版本兼容性"
+  fi
+fi
+
+# Independent transaction snapshot also protects upgrades, where the original
+# uninstall backup must remain untouched. Keep it if rollback itself fails.
+STAGE="$(mktemp -d)"
+cp -pR "$TARGET/packages/client/ui-theme" "$STAGE/ui-theme"
+while IFS= read -r rel; do
+  mkdir -p "$STAGE/$(dirname "$rel")"
+  cp -p "$TARGET/$rel" "$STAGE/$rel"
+done < "$HERE/scripts/patched-files.txt"
+MUTATING=0
+COMMITTED=0
+cleanup() {
+  status=$?
+  trap - EXIT HUP INT TERM
+  if [ "$MUTATING" = 1 ] && [ "$COMMITTED" = 0 ]; then
+    set +e
+    rollback_ok=1
+    rsync -a --delete "$STAGE/ui-theme/" "$TARGET/packages/client/ui-theme/" || rollback_ok=0
+    while IFS= read -r rel; do
+      cp -p "$STAGE/$rel" "$TARGET/$rel" || rollback_ok=0
+    done < "$HERE/scripts/patched-files.txt"
+    if [ "$rollback_ok" = 0 ]; then
+      printf '回滚失败，保留恢复副本：%s\n' "$STAGE" >&2
+      exit 1
+    fi
+  fi
+  rm -rf "$STAGE"
+  exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM HUP
+
 # 1. 备份要覆盖的文件，装错了能原样退回。
 #    已经装过皮肤就跳过，否则备份的是「装过之后」的样子，卸载会退不干净。
 if [ -f "$TARGET/packages/client/ui-theme/src/skin-version.ts" ]; then
@@ -40,34 +98,18 @@ else
   ok "已备份到 $BACKUP"
 fi
 
-# 2. 覆盖 ui-theme 包
+MUTATING=1
 rsync -a --delete --exclude 'node_modules' --exclude 'dist' --exclude 'lib' \
   "$HERE/tree/packages/client/ui-theme/" "$TARGET/packages/client/ui-theme/"
-ok "已写入 ui-theme 皮肤包（21 套预设 + 自定义皮肤 + 更新检查）"
-
-# 3. 打宿主集成补丁（背景层、玻璃拟态、消息气泡透明度）
-cd "$TARGET"
-if git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
-  if git apply --check "$HERE/patches/host-integration.patch" 2>/dev/null; then
+if [ "$APPLY" = 1 ]; then
+  if [ "$USE_GIT" = 1 ]; then
     git apply "$HERE/patches/host-integration.patch"
-    ok "已打宿主集成补丁"
-  elif git apply --check --reverse "$HERE/patches/host-integration.patch" 2>/dev/null; then
-    ok "宿主集成补丁已在，跳过"
   else
-    die "补丁打不上。你的 deepseek-harness 版本可能和本皮肤包不匹配（本包基于 0.1.0-rc.5），请手工比对 patches/host-integration.patch"
-  fi
-else
-  # patch 逐文件落盘，先 --dry-run 全量预检，打不上就一个文件都不动（-f 非交互，问题一律按否处理）
-  if patch -f -p1 --forward --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
-    patch -f -p1 --forward --silent < "$HERE/patches/host-integration.patch" \
-      || die "补丁打不上，请手工比对 patches/host-integration.patch"
-    ok "已打宿主集成补丁"
-  elif patch -f -p1 --reverse --dry-run --silent < "$HERE/patches/host-integration.patch" >/dev/null 2>&1; then
-    ok "宿主集成补丁已在，跳过"
-  else
-    die "补丁打不上（预检失败，未落盘任何改动）。你的 deepseek-harness 版本可能和本皮肤包不匹配（本包基于 0.1.0-rc.5），请手工比对 patches/host-integration.patch"
+    patch -f -p1 --forward --silent --no-backup-if-mismatch -r /dev/null < "$HERE/patches/host-integration.patch"
   fi
 fi
+COMMITTED=1
+ok "皮肤包与宿主补丁安装完成"
 
 printf '\n\033[1m接下来手动跑这三条\033[0m\n'
 say "cd $TARGET"
