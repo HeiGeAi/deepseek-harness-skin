@@ -12,7 +12,7 @@ say() { printf '  %s\n' "$*"; }
 
 [ -n "$TARGET" ] || die "用法：$0 /path/to/deepseek-harness"
 [ -d "$TARGET" ] || die "目录不存在：$TARGET"
-TARGET="$(cd "$TARGET" && pwd)"
+TARGET="$(cd "$TARGET" && pwd -P)"
 
 grep -q '"@deepseek-ai/dsh-root"' "$TARGET/package.json" 2>/dev/null \
   || die "这不像是 deepseek-harness 源码检出：$TARGET"
@@ -34,7 +34,8 @@ done < "$HERE/scripts/patched-files.txt"
 cd "$TARGET"
 APPLY=0
 USE_GIT=0
-if git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
+# A non-Git host nested in another repository must use patch, not its parent Git root.
+if [ "$(git -C "$TARGET" rev-parse --show-toplevel 2>/dev/null || true)" = "$TARGET" ]; then
   USE_GIT=1
   if git apply --check "$HERE/patches/host-integration.patch" 2>/dev/null; then
     APPLY=1

@@ -10,9 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class InstallerTests(unittest.TestCase):
     def test_transaction_matrix(self):
-        for git in (False, True):
-            for mode in ('install', 'upgrade', 'incompatible', 'copy-failure', 'patch-failure'):
+        for git in (False, True, 'parent'):
+            for mode in ('install', 'upgrade', 'incompatible', 'copy-failure', 'patch-failure', 'native-install', 'native-upgrade', 'native-incompatible', 'native-copy-failure', 'native-patch-failure'):
                 with self.subTest(git=git, mode=mode), tempfile.TemporaryDirectory() as tmp:
+                    native = mode.startswith('native-')
+                    mode = mode.removeprefix('native-')
+                    if native and not shutil.which('rsync'): self.skipTest('native rsync unavailable')
                     root=Path(tmp); package=root/'package'; host=root/'host'; home=root/'home'; bins=root/'bin'
                     for p in (package/'scripts', package/'patches', package/'tree/packages/client/ui-theme', host/'packages/client/ui-theme', home, bins): p.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(ROOT/'scripts/install.sh', package/'scripts/install.sh')
@@ -23,7 +26,7 @@ class InstallerTests(unittest.TestCase):
                     (host/'host.txt').write_text('new\n' if mode=='upgrade' else 'incompatible\n' if mode=='incompatible' else 'old\n')
                     (host/'packages/client/ui-theme/original.txt').write_text('original theme')
                     if mode=='upgrade': (host/'packages/client/ui-theme/src').mkdir();(host/'packages/client/ui-theme/src/skin-version.ts').write_text('v1')
-                    if git: subprocess.run(['git','init','-q',str(host)],check=True)
+                    if git: subprocess.run(['git','init','-q',str(root if git == 'parent' else host)],check=True)
                     # Deterministic rsync stand-in permits failure-after-partial-copy injection.
                     rsync=bins/'rsync'
                     rsync.write_text('''#!/usr/bin/env python3
@@ -34,8 +37,17 @@ flag=pathlib.Path(os.environ['FAIL_FLAG'])
 if os.environ.get('FAIL_COPY')=='1' and not flag.exists():
  flag.touch();sys.exit(1)
 ''');rsync.chmod(0o755)
+                    if native:
+                        if mode == 'copy-failure':
+                            actual_rsync = shutil.which('rsync')
+                            rsync.write_text('#!/usr/bin/env python3\nimport os,pathlib,subprocess,sys\n' +
+                                f'subprocess.run([{actual_rsync!r}]+sys.argv[1:],check=True)\n' +
+                                "flag=pathlib.Path(os.environ['FAIL_FLAG'])\nif not flag.exists():\n flag.touch();sys.exit(1)\n")
+                            rsync.chmod(0o755)
+                        else:
+                            rsync.unlink()
                     if mode == 'patch-failure':
-                        tool = 'git' if git else 'patch'
+                        tool = 'git' if git is True else 'patch'
                         actual = shutil.which(tool)
                         wrapper = bins/tool
                         wrapper.write_text('#!/usr/bin/env python3\nimport os,sys,pathlib\na=sys.argv[1:]\n' +
