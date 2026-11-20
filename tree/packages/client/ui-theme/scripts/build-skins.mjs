@@ -16,7 +16,8 @@
  *   --check  verify the working tree matches what the generator would write
  *            (exit 1 on drift) instead of writing files.
  */
-import { readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync, realpathSync } from 'node:fs'
+import { sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hexToOklch, parseColor } from '../src/skins/color.ts'
 import { auditSkin, deriveSkin, CONTRACT, CHROME_CONTRACT } from '../src/skins/derive.ts'
@@ -211,12 +212,25 @@ const themes = readdirSync(THEMES)
   .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
 
 if (themes.length === 0) throw new Error('no themes found')
-mkdirSync(OUT, { recursive: true })
+if (!check) mkdirSync(OUT, { recursive: true })
 
 const files = new Map()
 const audit = []
 const failures = []
 for (const theme of themes) {
+  if (theme.hero !== undefined) {
+    if (typeof theme.hero !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(theme.hero)) {
+      throw new Error(`Skin ${theme.id}: unsafe hero asset ${JSON.stringify(theme.hero)}`)
+    }
+    try {
+      const assets = realpathSync(`${SKINS}/assets`)
+      const asset = realpathSync(`${SKINS}/assets/${theme.hero}`)
+      if (!asset.startsWith(assets + sep)) throw new Error('asset escapes directory')
+      readFileSync(asset)
+    } catch (error) {
+      throw new Error(`Skin ${theme.id}: cannot read hero asset ${theme.hero}`, { cause: error })
+    }
+  }
   const derived = deriveSkin(theme, stock)
   files.set(`${OUT}/${theme.id}.css`, renderSkin(theme, derived))
 
