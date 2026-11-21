@@ -16,7 +16,7 @@
  *   --check  verify the working tree matches what the generator would write
  *            (exit 1 on drift) instead of writing files.
  */
-import { readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync, realpathSync } from 'node:fs'
 import { sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hexToOklch, parseColor } from '../src/skins/color.ts'
@@ -252,9 +252,11 @@ files.set(`${OUT}/stock.ts`, renderStock(families, hex, aliases))
 
 // Deleting a theme file has to delete its sheet too, or the directory stops
 // being a function of `themes/` and starts accumulating skins nothing selects.
-const orphans = readdirSync(OUT)
-  .map(name => `${OUT}/${name}`)
-  .filter(path => !files.has(path))
+const orphans = existsSync(OUT)
+  ? readdirSync(OUT)
+    .map(name => `${OUT}/${name}`)
+    .filter(path => !files.has(path))
+  : []
 
 if (check) {
   let drift = 0
