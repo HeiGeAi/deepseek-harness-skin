@@ -18,15 +18,27 @@ DSH Web GUI 的视觉皮肤层。皮肤由数据源生成，不手写 CSS：一�
 
 1. 往 `assets/` 放一张背景图（可选）。
 2. 复制一份 `themes/*.json` 改成 `themes/<id>.json`，填 4 个种子色。
-3. 跑生成器：
+3. 跑生成器与一致性校验（按你所在的工作目录二选一）：
 
-   ```bash
-   pnpm --filter @deepseek-ai/dsh-client-ui-theme build:skins
-   ```
+   - **在本仓库就地运行**（工作目录：本仓库根目录，无需先安装 DSH，需 Node.js >= 22.19）：
 
-4. 重新构建包：`pnpm --filter @deepseek-ai/dsh-client-ui-theme bundle`
+     ```bash
+     # 重新生成 generated/* 并执行可读性体检
+     node tree/packages/client/ui-theme/scripts/build-skins.mjs
 
-没有第 5 步。`theme-settings.ts` 的皮肤列表、`locales.ts` 的显示名、
+     # 只读校验生成产物、背景图引用与可读性契约（不改写工作区）
+     node tree/packages/client/ui-theme/scripts/build-skins.mjs --check
+     ```
+
+   - **安装到 DSH 宿主源码后构建**（工作目录：已安装本皮肤包的 `deepseek-harness` 根目录）：
+
+     ```bash
+     pnpm --filter @deepseek-ai/dsh-client-ui-theme build:skins
+     pnpm --filter @deepseek-ai/dsh-client-ui-theme check:skins
+     pnpm --filter @deepseek-ai/dsh-client-ui-theme bundle
+     ```
+
+没有第 4 步。`theme-settings.ts` 的皮肤列表、`locales.ts` 的显示名、
 `web/src/base.css` 的样式引入、设置页的缩略图，全部从生成的清单里读，
 不用再逐处登记。
 
@@ -43,8 +55,7 @@ DSH Web GUI 的视觉皮肤层。皮肤由数据源生成，不手写 CSS：一�
 上游自己的色阶过 WCAG AA，那么在另一块背景上打到同样比值的色阶也过。
 强调色是例外，种子本身就是重点，所以按种子重新居中，钉住主阶并保持顺序。
 
-生成器每次跑都会打一张体检表，16 个皮肤 × 8 项对比度契约，任何一项不达标
-直接退出码 1。CI 里用 `check:skins` 校验工作区和生成结果一致。
+生成器每次跑都会按 `themes/*.json` 中的全部内置皮肤打一张体检表（每套皮肤 × 8 项对比度契约），任何一项不达标或声明的背景图缺失都会直接以退出码 1 失败。提交前可在本仓库根目录跑 `node tree/packages/client/ui-theme/scripts/build-skins.mjs --check`（或在宿主 DSH 工作区跑 `pnpm --filter @deepseek-ai/dsh-client-ui-theme check:skins`）校验工作区与生成结果一致；本仓库目前未配置自动 CI，需要本地手动执行。
 
 ## 背景图只画一次
 

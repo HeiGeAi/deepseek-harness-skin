@@ -18,21 +18,25 @@ grep -q '"@deepseek-ai/dsh-root"' "$TARGET/package.json" 2>/dev/null \
   || die "这不像是 deepseek-harness 源码检出：$TARGET"
 
 ROOT="$HOME/.dsh-skin-backups"
-[ -d "$ROOT" ] || die "没有找到任何备份（$ROOT 不存在）"
+[ -d "$ROOT" ] || die "没有找到任何备份（${ROOT} 不存在）"
 
 if [ -z "$STAMP" ]; then
   # 只取最近一次「针对这个目标」的备份，绝不跨检出兜底。
-  for candidate in $(ls -1 "$ROOT" | sort -r); do
+  while IFS= read -r candidate; do
+    [ -n "$candidate" ] || continue
     [ -f "$ROOT/$candidate/.target" ] || continue
     recorded_target="$(cat "$ROOT/$candidate/.target")"
     [ -d "$recorded_target" ] || continue
     recorded_target="$(cd "$recorded_target" && pwd -P)"
     [ "$recorded_target" = "$TARGET" ] || continue
     STAMP="$candidate"; break
-  done
+  done < <(ls -1 "$ROOT" | sort -r)
   [ -n "$STAMP" ] && say "匹配到该目标的备份：$STAMP"
 fi
 [ -n "$STAMP" ] || die "没有找到归属于该目标仓库的备份：$TARGET"
+case "$STAMP" in
+  .|..|*/*) die "非法备份时间戳：$STAMP" ;;
+esac
 BACKUP="$ROOT/$STAMP"
 [ -d "$BACKUP" ] || die "备份不存在：$BACKUP"
 [ -f "$BACKUP/.target" ] || die "备份缺少目标归属记录：$BACKUP/.target"
@@ -40,16 +44,11 @@ BACKUP_TARGET="$(cat "$BACKUP/.target")"
 [ -d "$BACKUP_TARGET" ] || die "备份记录的目标目录不存在：$BACKUP_TARGET"
 BACKUP_TARGET="$(cd "$BACKUP_TARGET" && pwd -P)"
 [ "$BACKUP_TARGET" = "$TARGET" ] \
-  || die "备份归属于其他目标：$BACKUP_TARGET（当前目标：$TARGET）"
-
-# 显式传入时间戳同样强制校验归属，防止把别的仓库的备份还原进来
-if [ -f "$BACKUP/.target" ] && [ "$(cat "$BACKUP/.target")" != "$TARGET" ]; then
-  die "这份备份属于 $(cat "$BACKUP/.target")，与目标 $TARGET 不匹配"
-fi
+  || die "备份归属于其他目标：${BACKUP_TARGET}（当前目标：${TARGET}）"
 
 # 备份本身带皮肤就说明它记录的是「装过之后」的状态，还原它等于没卸载
 [ -f "$BACKUP/packages/client/ui-theme/src/skin-version.ts" ] \
-  && die "这份备份里已经含皮肤（$BACKUP），还原它退不回原生。请指定更早的时间戳：ls $ROOT"
+  && die "这份备份里已经含皮肤（${BACKUP}），还原它退不回原生。请指定更早的时间戳：ls ${ROOT}"
 [ -d "$BACKUP/packages/client/ui-theme" ] \
   || die "备份缺少 ui-theme 包：$BACKUP/packages/client/ui-theme"
 
